@@ -19,6 +19,7 @@ We load the packages and take a look at the data `mpg`.
 
 ```{r pkgs}
 library(tidyverse)
+library(nycflights13)
 mpg
 ```
 
@@ -160,3 +161,196 @@ Getting the density plot.
 g1 + geom_density(aes(fill = drv)) +
   facet_wrap(~ drv, nrow = 1)
 ```
+
+# Mouse Allergen and Asthma Cohort Study (MAACS)
+
+“Are overweight individuals, as measured by body mass index (BMI), more susceptible than normal weight individuals to the harmful effects of PM2.5 on asthma symptoms?”
+
+https://laqm.defra.gov.uk/public-health/pm25.html
+
+NocturnalSymp, is the number of days in the past 2 weeks where the child experienced asthma symptoms (e.g. coughing, wheezing) while sleeping.
+
+```{r}
+maacs <- read_csv("bmi_pm25_no2_sim.csv")
+glimpse(maacs)
+```
+
+```{r}
+maacs
+```
+
+```{r}
+g <- ggplot(data = maacs,
+            aes(x = logpm25, y = NocturnalSympt))
+summary(g)
+```
+
+With no geom, the plot is empty.
+
+```{r}
+print(g)
+```
+
+```{r}
+g + geom_point()
+```
+
+```{r}
+g + geom_point() + geom_smooth() 
+```
+Changing the smoothing method.
+
+```{r}
+g + geom_point() + geom_smooth(method = "lm") 
+```
+
+```{r}
+g + geom_point() + geom_smooth(method = "lm") +
+  facet_wrap(~ bmicat)
+```
+
+```{r}
+g + geom_point(aes(color = bmicat)) + 
+  labs(title = "MAACS")
+```
+
+```{r}
+g + geom_point(color = "steelblue", size = 4, alpha = 1/2)
+```
+
+```{r}
+g + geom_point(aes(color = bmicat), size = 4, alpha = 1/2)
+```
+
+```{r}
+g + geom_point(aes(color = bmicat)) +
+  labs(title = "MAACS Cohort", 
+       x = expression("log " * PM[2.5]), 
+       y = "Nocturnal Symptoms")
+```
+
+
+```{r}
+g + geom_point(aes(color = bmicat)) + 
+  theme_bw(base_family = "Times")
+```
+
+
+https://ggplot2.tidyverse.org/reference/ggtheme.html
+Complete themes — ggthemeThese are complete themes which control all non-data display. Use
+theme() if you just need to tweak the display of an existing
+theme.ggplot2.tidyverse.org​[9:53 a.m.] ALONSO SILVA, LAZARO
+
+
+
+```{r}
+testdat <- data.frame(x = 1:100, y = rnorm(100))
+```
+
+
+```{r}
+testdat[50,2] <- 100  ## Outlier!
+g <- ggplot(testdat, aes(x = x, y = y))
+g + geom_line()
+```
+
+```{r}
+g + geom_line() + ylim(-3, 3)
+```
+
+
+```{r}
+p <- g + geom_line() + coord_cartesian(ylim = c(-3, 3))
+p
+```
+
+```{r}
+p + annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"),
+             color = c("red", "blue"))
+```
+
+# The `nycflights13` dataset
+
+```{r}
+flights
+```
+
+```{r}
+daily <- flights %>% 
+  group_by(dest, day) %>% 
+  summarise(count = n())
+daily
+```
+
+```{r}
+daily %>% 
+  ggplot(aes(x = day, y = count, color = dest)) +
+  geom_point()
+```
+
+```{r}
+daily %>% 
+  ggplot(aes(x = day, y = count, color = dest)) +
+  geom_line()
+```
+
+```{r, fig.height= 8}
+daily %>% 
+  ggplot(aes(x = day, y = count, color = dest)) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(trans = "log2") +
+  geom_text(data = daily %>% ungroup() %>%  sample_n(size = 40), 
+            aes(label = dest), color = "black") +
+  theme(legend.key.size = unit(1.5, "cm"),
+  legend.key.width = unit(0.5,"cm"))
+```
+```{r}
+daily %>% 
+  ungroup() %>% 
+sample_n(40)
+```
+
+
+
+
+
+# `gapminder` dataset
+
+```{r}
+gap <- read_csv("gapminder-health-income.csv") %>% 
+  mutate(population = population / 1000000)
+gap
+```
+
+```{r}
+gap %>% 
+  ggplot(aes(x = income, y = health,
+             color = population, 
+             size = population)) +
+  geom_point() +
+  scale_color_viridis_c(
+    guide = guide_colorbar(title.position = "right",
+                          title.theme = element_text(angle = 90),
+                          barheight = 20)) +
+  scale_x_log10() +
+  guides(size = FALSE) + 
+  geom_text(data = gap %>% filter(country %in% 
+                                    c("India",
+                                      "Indonesia",
+                                      "China",
+                                      "United States")),
+            aes(label = country), 
+            color = "black", 
+            size = 3,
+            check_overlap = TRUE) +
+  theme(legend.key.size = unit(1.5, "cm"),
+  legend.key.width = unit(0.5,"cm"),
+  legend.title.align = 0.5
+  ) +
+  labs(color = "Population (millions)")
+```
+
+
+
+
