@@ -1,0 +1,162 @@
+---
+title: "Lecture 2"
+subtitle: "`tidyverse` - `ggplot2` + `dplyr`"
+author: "Pablo Benavides-Herrera"
+date: 2020-05-30
+output: 
+  html_notebook:
+    theme: spacelab
+    toc: TRUE
+    toc_float: TRUE
+---
+
+```{r global opts, echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+We load the packages and take a look at the data `mpg`.
+
+```{r pkgs}
+library(tidyverse)
+mpg
+```
+
+# Using the `qplot()` function
+
+```{r qplot}
+qplot(displ, hwy, data = mpg)
+```
+
+
+
+```{r qplot + color}
+qplot(displ, hwy, data = mpg, color = drv)
+```
+
+Now we change the `shape` of the points.
+
+```{r qplot + color + shape}
+qplot(displ, hwy, data = mpg, color = drv, shape = drv)
+```
+
+Now we add two geoms: points and smooth.
+
+```{r qplot + geoms}
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth"))
+```
+
+Smoothing across groups.
+
+```{r qplot smooth by drv}
+qplot(displ, hwy, data = mpg, color = drv, 
+      geom = c("point", "smooth"))
+```
+
+
+```{r qplot hist}
+qplot(hwy, data = mpg, fill = drv, binwidth = 2)
+```
+
+Plotting boxplots of `drv` and `hwy`.
+
+```{r qplot boxplot}
+qplot(drv, hwy, data = mpg, fill = drv, geom = "boxplot")
+```
+
+We can plot the histograms with facets.
+
+```{r qplot + facets}
+qplot(hwy, data = mpg, fill = drv, 
+      facets = drv~., binwidth = 2)
+```
+
+Scatterplots can have facets too.
+
+```{r qplot point + facet}
+qplot(displ, hwy, data = mpg, facets = . ~ drv,
+      geom = c("point","smooth"))
+```
+
+Getting the density plot.
+
+```{r qplot density}
+qplot(hwy, data = mpg, fill = drv,
+      facets = . ~ drv,
+      geom = "density")
+```
+
+# Translating `qplot()` into `ggplot()`
+
+We'll do the same, but now using the `ggplot()` function.
+
+The basic settings:
+
+```{r ggplot config}
+g <- ggplot(data = mpg)
+g1 <- g + aes(x = hwy)
+g2 <- g + aes(x = displ, y = hwy)
+g3 <- g + aes(x = drv, y = hwy)
+```
+
+
+```{r ggplot}
+g2 + geom_point()
+```
+
+
+
+```{r ggplot + color}
+g2 + geom_point(aes(color = drv))
+```
+
+Now we change the `shape` of the points.
+
+```{r ggplot + color + shape}
+g2 + geom_point(aes(color = drv, shape = drv))
+```
+
+Now we add two geoms: points and smooth.
+
+```{r ggplot + geoms}
+g2 + geom_point() + geom_smooth()
+```
+
+Smoothing across groups.
+
+```{r ggplot smooth by drv}
+g2 + geom_point(aes(color = drv)) +
+  geom_smooth(aes(color = drv))
+```
+
+
+```{r ggplot hist}
+g1 + geom_histogram(aes(fill = drv), binwidth = 2)
+```
+
+Plotting boxplots of `drv` and `hwy`.
+
+```{r ggplot boxplot}
+g3 + geom_boxplot(aes(fill = drv))
+```
+
+We can plot the histograms with facets.
+
+```{r ggplot + facets}
+g1 + geom_histogram(aes(fill = drv)) +
+  facet_wrap(~drv, ncol = 1)
+```
+
+Scatterplots can have facets too.
+
+```{r ggplot point + facet}
+g2 + geom_point() + geom_smooth() +
+  facet_wrap(~ drv, nrow = 1)
+```
+
+Getting the density plot.
+
+```{r ggplot density}
+g1 + geom_density(aes(fill = drv)) +
+  facet_wrap(~ drv, nrow = 1)
+```
