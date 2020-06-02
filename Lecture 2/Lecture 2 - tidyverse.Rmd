@@ -319,7 +319,7 @@ sample_n(40)
 
 ```{r}
 gap <- read_csv("gapminder-health-income.csv") %>% 
-  mutate(population = population / 1000000)
+  mutate(population = log10(population))
 gap
 ```
 
@@ -339,11 +339,14 @@ gap %>%
                                     c("India",
                                       "Indonesia",
                                       "China",
-                                      "United States")),
+                                      "United States",
+                                      "Mexico")),
             aes(label = country), 
             color = "black", 
             size = 3,
-            check_overlap = TRUE) +
+            check_overlap = TRUE,
+            hjust = 0,
+            vjust = 1) +
   theme(legend.key.size = unit(1.5, "cm"),
   legend.key.width = unit(0.5,"cm"),
   legend.title.align = 0.5
