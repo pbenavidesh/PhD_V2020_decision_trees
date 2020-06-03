@@ -1,0 +1,313 @@
+---
+title: "`tidyverse` - `ggplot2`"
+author: "Pablo Benavides-Herrera"
+date: '2020-06-02'
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    theme: united
+  github_document:
+    toc: yes
+    dev: jpeg
+subtitle: Lecture 3
+---
+
+# Plots
+
+
+```{r pkgs, message=FALSE}
+library(tidyverse)
+library(plotly)
+library(gridExtra)
+library(patchwork)
+library(nycflights13)
+```
+
+
+We will continue using the `mpg` dataset.
+
+```{r mpg}
+glimpse(mpg)
+```
+
+## Histograms
+
+We start by plotting a simple histogram of the engine displacement.
+
+```{r hist}
+g <- ggplot(mpg, aes(displ)) + 
+  scale_fill_brewer(palette = "Spectral")
+
+g + geom_histogram(binwidth = .1, 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Engine Displacement across Vehicle Classes") 
+```
+
+We can create a stacked histogram by defining a fill aesthetics.
+
+```{r stacked hist}
+g + geom_histogram(aes(fill = class) ,
+                   binwidth = .1, 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Engine Displacement across Vehicle Classes") 
+```
+
+Changing the number of bins can show different patterns. Setting the number of bins to 10:
+
+```{r}
+g +geom_histogram(aes(fill=class),
+                   bins=10,
+                   col="black", size = 0.1) +   # change number of bins
+  labs(title="Histogram with Fixed Bins",
+       subtitle="Engine Displacement across Vehicle Classes")
+```
+
+
+## Bar plots
+
+If we want to plot factors, a **bar plot** could be a good way to do it.
+
+```{r}
+g <- ggplot(mpg, aes(manufacturer))
+g + geom_bar(aes(fill=class), width = 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.7)) +
+  labs(title="Histogram on Categorical Variable",
+       subtitle="Manufacturer across Vehicle Classes")
+```
+
+## Density plots
+
+```{r}
+g <- ggplot(mpg, aes(cty))
+g + geom_density(aes(fill=factor(cyl)), 
+                 alpha=0.5) +
+    labs(title="Density plot",
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: mpg",
+         x="City Mileage",
+         fill="# Cylinders")
+```
+
+## Boxplots
+
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+g + geom_boxplot(varwidth=T, fill="dodgerblue", alpha = 0.5) +
+    labs(title="Box plot",
+         subtitle="City Mileage grouped by Class of vehicle",
+         caption="Source: mpg",
+         x="Class of Vehicle",
+         y="City Mileage")
+```
+
+Setting `varwidth=T` adjusts the width of the boxes to be proportional to the number of observation it contains.
+ 
+ 
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+g + geom_boxplot(aes(fill=factor(cyl))) +  scale_fill_brewer(palette = "Spectral") +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Box plot",
+       subtitle="City Mileage grouped by Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+```
+ 
+ 
+## Violin plot
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+p <- g + geom_violin() +  scale_fill_brewer(palette = "Spectral") +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Violin plot",
+       subtitle="City Mileage grouped by Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+p
+```
+
+
+```{r}
+g + geom_violin(trim = T) + coord_flip()
+```
+
+
+
+```{r}
+p + stat_summary(fun=median, geom="point", size=2, color="red")
+```
+
+
+```{r}
+p + geom_boxplot(width = 0.1)
+```
+
+
+```{r}
+g <- ggplot(mpg, aes(class, cty, color = class))
+pc <- g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="City Mileage vs Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage") +
+  theme(legend.position = "none")
+pc
+```
+
+
+
+```{r}
+pc + scale_color_brewer(palette = "Dark2")
+```
+
+## Arranging many plots 
+
+### with `gridExtra`
+
+```{r}
+p_data <- ggplot(mpg, aes(x = hwy))
+p1 <- p_data + geom_histogram(binwidth = 1, color = "grey30", fill = "white") + 
+  labs(title="Bin width 1")
+p2 <-  p_data + geom_histogram(binwidth = 2, color = "dodgerblue", 
+                               fill = "blue", alpha = 0.4) + 
+  labs(title="Bin width 2")
+
+ 
+
+p3 <- p_data + geom_histogram(binwidth = 2, color = "grey30", 
+                              fill = "red", alpha = 0.2) + 
+  labs(title="Bin width 3")
+
+ 
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+
+### with `patchwork`
+
+```{r}
+p1 + p2 + p3
+```
+
+```{r}
+p1 / (p2 +p3)
+```
+
+
+```{r}
+p1 + p2 / p3
+```
+
+## Combining plots
+
+```{r}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(aes(y=..density..), 
+  color = "grey30", fill = "white") +
+  geom_density(alpha = .2, fill = "antiquewhite3") + labs(title="Bin width 1")
+```
+
+```{r}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(aes(y=..density..), 
+  color = "red", fill = "white") +
+  geom_density(alpha = .2, fill = "antiquewhite3",
+               color = "blue") +
+  labs(title="Bin width 1")
+```
+
+
+```{r}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(aes(y=..density..), color = "grey30", fill = "white") +geom_density(alpha = .2, fill = "antiquewhite3") + labs(title="Bin width 1") + geom_vline(xintercept = mean(mpg$hwy), color = "red", linetype = "dashed")
+```
+
+
+```{r}
+compare_mean <- mpg %>% 
+  group_by(cyl) %>% 
+  summarise(Mean = mean(cty))
+
+g <- ggplot(mpg, aes(cty))
+g + geom_density(aes(fill=factor(cyl)), 
+                 alpha=0.5) +
+    labs(title="Density plot",
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: mpg",
+         x="City Mileage",
+         fill="# Cylinders") +
+  geom_vline(data = compare_mean,
+             aes(xintercept = Mean, 
+                 color = factor(cyl)),
+             linetype = "dashed", size = 0.75)
+```
+
+## Error bars
+
+```{r}
+# Create new dataframe mpg_means_se
+mpg_means_se <- mpg %>%
+  group_by(manufacturer) %>% # Group the data by manufacturer
+  summarize(mean_cty=mean(cty), # Create variable with mean of cty per group
+            sd_cty=sd(cty), # Create variable with sd of cty per group
+            N_cty=n(), # Create new variable N of cty per group
+            se=sd_cty/sqrt(N_cty), # Create variable with se of cty per group
+            upper_limit=mean_cty+se, # Upper limit
+            lower_limit=mean_cty-se # Lower limit
+            )
+mpg_means_se
+```
+
+```{r}
+ggplot(mpg_means_se, aes(x=manufacturer, y=mean_cty, fill=manufacturer)) +
+  geom_errorbar(aes(ymin=lower_limit, ymax=upper_limit), width = 0.3) +
+   geom_bar(stat="identity", alpha= 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6), legend.position = "none") +
+  geom_line(aes(group = 1), size = 0.2, color = "red")
+```
+
+
+```{r}
+ggplot(mpg_means_se, aes(x=reorder(manufacturer, mean_cty), y=mean_cty, fill=manufacturer)) +
+  geom_errorbar(aes(ymin=lower_limit, ymax=upper_limit), width = 0.3) +
+   geom_bar(stat="identity", alpha= 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6), legend.position = "none")# +
+  #geom_line(aes(group = 1), size = 0.2, color = "red")
+```
+
+# Exercises
+
+## `nycflights13`
+
+Analyzing flights that departed from NYC in any of its airports.
+
+```{r}
+flights
+```
+
+### Histograms
+
+```{r}
+ghist <- flights %>% 
+  ggplot(aes(dep_delay)) +
+  geom_histogram(bins = 100)
+
+ghist + labs(title = "Departure delay")
+```
+
+```{r}
+ghist + aes(fill = carrier)
+```
+
+```{r}
+ghist + aes(fill = carrier) + facet_wrap(~ origin)
+```
+
