@@ -22,6 +22,7 @@ library(plotly)
 library(gridExtra)
 library(patchwork)
 library(nycflights13)
+library(lubridate)
 ```
 
 
@@ -296,8 +297,16 @@ flights
 ### Histograms
 
 ```{r}
-ghist <- flights %>% 
-  ggplot(aes(dep_delay)) +
+flights_ny <- flights %>% 
+  unite(date, year:day, sep = "-") %>%
+  mutate(date = ymd(date)) %>% 
+  filter(dep_delay < 200) %>% 
+  drop_na()
+  
+g <- flights_ny %>% 
+  filter(dep_delay < 200) %>% 
+  ggplot(aes(x = dep_delay))
+ghist <- g +
   geom_histogram(bins = 100)
 
 ghist + labs(title = "Departure delay")
@@ -309,5 +318,35 @@ ghist + aes(fill = carrier)
 
 ```{r}
 ghist + aes(fill = carrier) + facet_wrap(~ origin)
+```
+
+### Density plots
+
+```{r}
+gdens <- g +
+  geom_density(aes(fill = carrier), alpha = 0.5) 
+  
+gdens + facet_wrap(~ origin)
+```
+
+```{r}
+g <- flights_ny %>% 
+  filter(month(date)==1,
+         carrier == "AA") %>% 
+  ggplot(aes(x = dep_time, y = dep_delay, 
+             color = tailnum)) +
+  geom_point(aes(frame = as.numeric(date))) + 
+  facet_wrap(~ origin)
+ggplotly(g)
+```
+
+
+```{r}
+weather %>% 
+  mutate(grupo = case_when(hour %in% 0:5 ~ "A",
+                           hour %in% 6:11 ~ "B",
+                           hour %in% 12:17 ~ "C",
+                           TRUE ~ "D")
+  )
 ```
 
