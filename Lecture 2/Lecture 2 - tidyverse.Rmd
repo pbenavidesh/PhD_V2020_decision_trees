@@ -294,13 +294,20 @@ daily %>%
   geom_line()
 ```
 
+```{r}
+daily %>% 
+  distinct(dest)
+```
+
+
 ```{r, fig.height= 8}
 daily %>% 
   ggplot(aes(x = day, y = count, color = dest)) +
   geom_point() +
   geom_line() +
   scale_y_continuous(trans = "log2") +
-  geom_text(data = daily %>% ungroup() %>%  sample_n(size = 40), 
+  geom_text(data = daily %>% ungroup() %>%  
+              sample_n(size = 40), 
             aes(label = dest), color = "black") +
   theme(legend.key.size = unit(1.5, "cm"),
   legend.key.width = unit(0.5,"cm"))
