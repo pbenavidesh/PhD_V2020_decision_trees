@@ -318,6 +318,32 @@ daily %>%
 sample_n(40)
 ```
 
+Try #2 with `dplyr 1.0.0`
+
+Grouping the `tibble` by destination and using `slice_sample()`, we can obtain a random sample from each destination.
+
+```{r}
+dest_sample <- daily %>%
+  group_by(dest) %>%
+  slice_sample(1)
+
+dest_sample
+```
+
+
+
+```{r}
+daily %>% 
+  ggplot(aes(x = day, y = count, color = dest)) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(trans = "log2") +
+  geom_text(data = dest_sample, size = 2,
+            aes(label = dest), color = "black") +
+  theme(legend.key.size = unit(1.5, "cm"),
+  legend.key.width = unit(0.5,"cm"))
+```
+
 
 
 
