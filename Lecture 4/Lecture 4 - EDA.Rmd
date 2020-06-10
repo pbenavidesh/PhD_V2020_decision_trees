@@ -175,3 +175,23 @@ prediction(params, 100, 3)
 
 # Actividad
 
+## Explorando el precio vs. baños
+
+```{r}
+plot_houses <- function(data=house_prices, x = "bathrooms", y = "price", color = NULL){
+  data %>% 
+  ggplot(aes_string(x = x, y = y, color = color))
+}
+```
+
+```{r}
+plot_houses(color = "floors") + geom_point()
+```
+
+```{r}
+library(maps)
+library(ggmap)
+mutate_geocode()
+plot_houses()
+```
+
