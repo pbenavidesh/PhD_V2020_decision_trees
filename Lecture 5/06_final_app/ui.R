@@ -1,7 +1,7 @@
 library(shiny)
 
 # Define UI for application
-shinyUI(navbarPage(title = "Lecture 5 - Shiny Apps",
+shinyUI(navbarPage(title = "Shiny Apps",
                    theme = shinytheme("united"),
                    # First tab - moderndive ####
                    tabPanel("Seattle House prices",
