@@ -1,4 +1,3 @@
-
 library(shiny)
 
 # Define UI for application
@@ -86,7 +85,83 @@ shinyUI(navbarPage(title = "Lecture 5 - Shiny Apps",
                                 plotlyOutput("t3_gap_plot")
                               )
                             )
-                            )
+                            ),
+                   # Fourth tab - transformations ####
+                   tabPanel("transformations",
+                            navlistPanel(
+                              tabPanel("Mathematical transformations",
+                                       fluidRow(
+                                         column(12,
+                                                h1("Box-Cox transformations"))
+                                       ),
+                                       fluidRow(
+                                         column(4,
+                                                wellPanel(sliderInput("lambda",
+                                                                      "Value of lambda:",
+                                                                      min = -1,
+                                                                      max = 2,
+                                                                      value = 1, step = 0.01))),
+                                         column(8,
+                                                plotlyOutput("boxcox"))
+                                       ),
+                                       hr()),
+                              tabPanel("Scaling axes",
+                                       fluidRow(
+                                         column(12,
+                                                h1("Log scales"))  
+                                       ),
+                                       fluidRow(
+                                         column(4,
+                                                wellPanel(
+                                                  selectInput("gdp_var",
+                                                              label = "Variable to plot",
+                                                              choices = c("GDP", "GDP per capita")),
+                                                  checkboxInput("logscale",
+                                                                label = "Use log scale",
+                                                                value = FALSE),
+                                                  checkboxGroupInput("countries",
+                                                                     label = "Choose the countries to plot",
+                                                                     choices = c("Mexico", "Iceland","Australia",
+                                                                                 "Brazil", "Canada", "China",
+                                                                                 "Germany", "United States"),
+                                                                     selected = c("Mexico", "Iceland",
+                                                                                  "Australia"))
+                                                )
+                                         ),
+                                         column(8,
+                                                plotlyOutput("gdp"))
+                                       ),
+                                       hr()
+                                       ),
+                              tabPanel("Moving averages",
+                                       fluidRow(
+                                         column(12,
+                                                h1("Moving averages"))
+                                       ),
+                                       fluidRow(
+                                         column(4,
+                                                wellPanel(
+                                                  sliderInput("ma",
+                                                              label = "Choose the order for the MA",
+                                                              min = 1, max = 50,
+                                                              value = 7, step = 1),
+                                                  checkboxInput("ma2",
+                                                                label = "Apply a MA to the MA",
+                                                                value = FALSE),
+                                                  conditionalPanel("input.ma2 == 1",
+                                                                   sliderInput("ma3",
+                                                                               label = "Order of the MA of the MA",
+                                                                               min = 1, max = 10,
+                                                                               value = 2, step = 1)))),
+                                         column(8,
+                                                plotlyOutput("ma_plot"))
+                                         
+                                       ) # fluidRow
+                                       
+                                       
+                                       
+                              ) # tabPanel
+                            ))
                    
         
 ) #navbarPage

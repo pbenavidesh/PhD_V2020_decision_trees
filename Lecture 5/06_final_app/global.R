@@ -1,6 +1,5 @@
 # Global configuration
 
-
 # pkgs --------------------------------------------------------------------
 
 library(shinythemes)
@@ -11,6 +10,8 @@ library(colourpicker)
 library(patchwork)
 library(plotly)
 library(gapminder)
+library(tsibble)
+library(tsibbledata)
 
 
 # First tab - moderndive --------------------------------------------------
@@ -37,3 +38,15 @@ plot_types <- list("Boxplot" = geom_boxplot(),
 
 # Third tab - gapminder ---------------------------------------------------
 
+
+
+
+# Fourth tab - transformations --------------------------------------------
+
+glob_econ <- global_economy %>%
+  mutate(`GDP per capita` = GDP / Population)
+
+
+us_retail_employment <- us_employment %>%
+  filter(year(Month) >= 1990, Title == "Retail Trade") %>%
+  select(-Series_ID)
