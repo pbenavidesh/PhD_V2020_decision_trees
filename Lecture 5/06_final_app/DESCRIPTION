@@ -1,6 +1,7 @@
-Title: Shiny Apps
+Title: App for data and time series analysis
 Author: Pablo Benavides-Herrera
+AuthorUrl: https://github.com/pbenavidesh/
 Date: 2020-06-13
 DisplayMode: Showcase
-Tags: getting-started
+Tags: data-analysis, time-series
 Type: Shiny

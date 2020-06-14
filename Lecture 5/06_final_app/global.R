@@ -2,6 +2,7 @@
 
 # pkgs --------------------------------------------------------------------
 
+library(shiny)
 library(shinythemes)
 library(tidyverse)
 library(moderndive)
@@ -11,8 +12,11 @@ library(patchwork)
 library(plotly)
 library(gapminder)
 library(tsibble)
+library(feasts)
+library(fable)
 library(tsibbledata)
-
+library(fpp3)
+library(DT)
 
 # First tab - moderndive --------------------------------------------------
 
@@ -50,3 +54,21 @@ glob_econ <- global_economy %>%
 us_retail_employment <- us_employment %>%
   filter(year(Month) >= 1990, Title == "Retail Trade") %>%
   select(-Series_ID)
+
+
+# Fifth tab - TS decomposition --------------------------------------------
+
+series <- us_employment %>% 
+  distinct(Title) %>% filter(!str_detect(Title,":")) %>% pull(Title)
+
+empleo <- us_employment %>% 
+  filter(year(Month) >= 1990,
+         Title %in% series) %>% 
+  mutate(Title = factor(Title))
+
+dcmp <- list("Classic" = classical_decomposition(Employed),
+             # "X11"= feasts:::X11(Employed),
+             # "SEATS" = feasts:::SEATS(Employed),
+             "STL" = STL(Employed))
+
+

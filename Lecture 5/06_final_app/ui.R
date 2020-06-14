@@ -1,7 +1,7 @@
 library(shiny)
 
 # Define UI for application
-shinyUI(navbarPage(title = "Shiny Apps",
+shinyUI(navbarPage(title = "Data analysis app",
                    theme = shinytheme("united"),
                    # First tab - moderndive ####
                    tabPanel("Seattle House prices",
@@ -161,7 +161,98 @@ shinyUI(navbarPage(title = "Shiny Apps",
                                        
                                        
                               ) # tabPanel
-                            ))
+                            )
+                            ),
+                   # Fifth tab - TS decomposition ####
+                   tabPanel("TS Decomposition",
+                            fluidRow(
+                              column(12,
+                                     h1("Time series decomposition methods - US Employment")
+                              )
+                            ),
+                            fluidRow(#style='height:50vh',
+                              column(4,
+                                     wellPanel(
+                                       selectInput("t5_ts",
+                                                   label = "Choose the time series",
+                                                   choices = series,
+                                                   selected = "Retail Trade"),
+                                       radioButtons("t5_dcmp",
+                                                    label = "Decomposition method",
+                                                    choices = names(dcmp)),
+                                       conditionalPanel("input.t5_dcmp=='Classic'",
+                                                        radioButtons("t5_type",
+                                                                     label = "Type",
+                                                                     choices = c("additive",
+                                                                                 "multiplicative"),
+                                                                     inline = TRUE)
+                                                        ),
+                                       conditionalPanel("input.t5_dcmp=='STL'",
+                                                        flowLayout(
+                                                          verticalLayout(
+                                                            h5(strong("Trend component")),
+                                                            checkboxInput("t5_stl_man_trend",
+                                                                               label = "Choose component automatically",
+                                                                               value = TRUE),
+                                                            conditionalPanel("input.t5_stl_man_trend==0",
+                                                                             numericInput("t5_stl_trend",
+                                                                                          label = "Trend window",
+                                                                                          min = 1,
+                                                                                          value = 7,
+                                                                                          step = 2)
+                                                                             )
+                                                          ),
+                                                          verticalLayout(
+                                                            h5(strong("Seasonal component")),
+                                                            checkboxInput("t5_stl_man_seas",
+                                                                               label = "Keep a fixed seasonality (periodic window)",
+                                                                               value = TRUE),
+                                                            conditionalPanel("input.t5_stl_man_seas==0",
+                                                                             numericInput("t5_stl_season",
+                                                                                          label = "Seasonal window",
+                                                                                          min = 7,
+                                                                                          value = 15,
+                                                                                          step = 2)
+                                                            )
+                                                          )
+                                                          
+                                                          
+                                                        ),
+                                                        checkboxInput("t5_stl_robust",
+                                                                      label = "Make it robust to outliers")
+                                                        ),
+                                       flowLayout(
+                                         selectInput("t5_theme", label = "Select theme for plot", 
+                                                     choices = names(themes)),
+                                         colourInput("t5_color",
+                                                     label = "Choose the color",
+                                                     value = "blue",
+                                                     showColour = "background")
+                                       )
+                                       
+                                     )
+                              ),
+                              column(8,
+                                     tabsetPanel(
+                                       tabPanel("Components Plot",
+                                                plotOutput("t5_dcmp") #height = 700
+                                                ),
+                                       tabPanel("Season-adjusted plot",
+                                                plotOutput("t5_dcmp_sadj")
+                                                ),
+                                       tabPanel("Data",
+                                                sliderInput("t5_dt_rows",
+                                                            label = "Rows to show",
+                                                            min = 1,
+                                                            max = 100,
+                                                            value = c(1,20)),
+                                                tableOutput("t5_dcmp_dt"))
+                                     )
+                                     
+                              )
+                            )
+                            
+                   ) # tabPanel
                    
         
 ) #navbarPage

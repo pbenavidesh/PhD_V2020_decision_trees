@@ -137,5 +137,51 @@ shinyServer(function(input, output) {
         }
         
     })
+    
+    # Fifth tab - TS decomposition ####
+    employment <- reactive({
+        if (input$t5_dcmp == "Classic"){
+            empleo %>% 
+                filter(Title == input$t5_ts) %>% 
+                model(`Classical decomposition` = classical_decomposition(Employed, type = input$t5_type)) %>% 
+                components()
+        } else{
+            empleo %>% 
+                filter(Title == input$t5_ts) %>% 
+                model(STL = STL(Employed ~ trend(window = 
+                                               if(input$t5_stl_man_trend == TRUE){
+                                                   NULL
+                                               } else {input$t5_stl_trend}) +
+                            season(window = if(input$t5_stl_man_seas == TRUE){
+                                "periodic"
+                            } else {input$t5_stl_season}),
+                          robust = input$t5_stl_robust)) %>% 
+                components()
+        }
+        
+    })  
+    
+    output$t5_dcmp <- renderPlot({
+        employment() %>% 
+            autoplot(color = input$t5_color, size = 0.8) +
+            themes[[input$t5_theme]]
+    })
+    
+    output$t5_dcmp_sadj <- renderPlot({
+        empleo %>%
+            filter(Title == input$t5_ts) %>% 
+            autoplot(Employed, color = "grey", size = 0.8) + 
+            autolayer(employment(), season_adjust, 
+                      color = input$t5_color,
+                      size = 0.9) +
+            themes[[input$t5_theme]]
+    })
+    
+    output$t5_dcmp_dt <- renderTable({
+        employment() %>% 
+            as_tibble() %>%
+            mutate(Month = as.character(Month)) %>% 
+            dplyr::slice(input$t5_dt_rows[1]:input$t5_dt_rows[2])
+    }, hover = TRUE)
 
 })

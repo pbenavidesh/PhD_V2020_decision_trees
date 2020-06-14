@@ -1,1 +1,0 @@
-This small Shiny app is an example of how to create an app that has navigation bars, tabs, and many other options to customize within outputs.
