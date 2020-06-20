@@ -1,0 +1,12 @@
+name: data_analysis_app
+title: data_analysis_app
+username:
+account: pablo-benavides
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2454635
+bundleId: 3269624
+url: https://pablo-benavides.shinyapps.io/data_analysis_app/
+when: 1592178314.36569
+asMultiple: FALSE
+asStatic: FALSE
