@@ -23,8 +23,10 @@ shinyUI(fluidPage(theme = shinytheme("spacelab"),
                         value = 5),
             radioButtons("img_src",
                          label = "Choose image source",
-                         choices = c("From web",
-                                     "From pc")),
+                         choices = c("From pc",
+                                     "From web"),
+                         inline = TRUE
+                         ),
             conditionalPanel("input.img_src=='From web'",
                              textInput("url",
                                        label = "Specify the image's URL")
@@ -34,7 +36,9 @@ shinyUI(fluidPage(theme = shinytheme("spacelab"),
                                        label = "Choose an image",
                                        accept = c("image/jpeg",
                                                   "image/png",
-                                                  "image/jpg"))
+                                                  "image/jpg"),
+                                       # multiple = TRUE
+                                       )
                              ),
             actionButton("go",
                          label = "Extract colors!")

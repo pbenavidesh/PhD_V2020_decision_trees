@@ -20,7 +20,7 @@ shinyServer(function(input, output) {
             load.image(input$url)
         } else {
             load.image(input$file %>% pull(datapath))
-            # load.image(input$file)
+            
             
         }
         
@@ -31,7 +31,8 @@ shinyServer(function(input, output) {
     }) 
     
     kclust <- reactive({
-        kmeans(bdf(), centers = input$clusters) %>% 
+        set.seed(input$seed)
+        kmeans(bdf(), centers = input$clusters, iter.max = 20) %>% 
             tidy() %>% 
             select(-c(x1,x2)) %>% 
             rgb()
@@ -45,14 +46,14 @@ shinyServer(function(input, output) {
             geom_point(size = 20, color = kclust())+
             coord_cartesian(xlim = c(-5,.05), ylim = c(-0.3,2   * input$clusters))+
             theme_void()+
-            theme(
-                panel.background = element_rect(fill = "transparent"), # bg of the panel
-                plot.background = element_rect(fill = "transparent", color = NA), # bg of the plot
-                panel.grid.major = element_blank(), # get rid of major grid
-                panel.grid.minor = element_blank(), # get rid of minor grid
-                legend.background = element_rect(fill = "transparent"), # get rid of legend bg
-                legend.box.background = element_rect(fill = "transparent") # get rid of legend panel bg
-            ) +
+            # theme(
+            #     panel.background = element_rect(fill = "transparent"), # bg of the panel
+            #     plot.background = element_rect(fill = "transparent", color = NA), # bg of the plot
+            #     panel.grid.major = element_blank(), # get rid of major grid
+            #     panel.grid.minor = element_blank(), # get rid of minor grid
+            #     legend.background = element_rect(fill = "transparent"), # get rid of legend bg
+            #     legend.box.background = element_rect(fill = "transparent") # get rid of legend panel bg
+            # ) +
             annotation_custom(rasterGrob(im()),xmin = -Inf, xmax = Inf,
                               ymin = -Inf, ymax = Inf)
     })
