@@ -1,0 +1,157 @@
+---
+title: "Basic classification examples"
+author: "Pablo Benavides-Herrera"
+date: 2020-06-27
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    theme: spacelab
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = TRUE, warning = TRUE)
+```
+
+# Prerrequisites
+
+```{r pkgs, message=FALSE}
+library(tidyverse)
+library(dslabs)
+library(reshape2)
+library(patchwork)
+library(tidyquant)
+```
+
+# Digits classification
+
+Load the data.
+
+```{r digits}
+mnist <- read_mnist()
+glimpse(mnist)
+```
+
+Save the features into a different variable.
+
+```{r}
+features <- mnist$train$images
+glimpse(features)
+```
+
+Converting our data to matrix.
+
+```{r digit matrix}
+d <- matrix(features[1,], nrow = 28, byrow = TRUE)
+digito <- melt(d)
+digito
+```
+
+We plot the resulting image.
+
+```{r digit plot}
+digito %>% 
+  ggplot(aes(x = Var2, y = Var1)) +
+  geom_raster(aes(fill = factor(value))) +
+  scale_y_reverse() + scale_fill_grey() +
+  theme(legend.position = "none")
+```
+
+```{r digit plot function}
+p <- function(i){
+    d <- matrix(features[i,], nrow = 28, byrow = TRUE)
+    digito<-melt(d)
+    ggplot(digito, aes(x = Var2, y = Var1)) +
+    geom_raster(aes(fill=value)) +  coord_fixed() +
+      theme_void() + theme(legend.position = "none") +
+      scale_y_reverse()
+  }
+```
+
+```{r digit plot example}
+p(1) + p(2) + p(3) + p(4) + p(5) + p(6)
+```
+
+We get the total occurences for each digit.
+
+```{r digit label summary}
+etiquetas <- mnist$train$labels 
+etiquetas %>%
+  as_tibble() %>% 
+  mutate(cant = 1) %>%
+  group_by(value) %>%
+    summarise(total = sum(cant))
+```
+
+```{r}
+d %>% 
+  as_tibble()
+```
+
+
+```{r}
+features2 <- features %>% 
+  as_tibble() %>% 
+  mutate(digito = etiquetas,
+         n = 1:60000) %>% 
+  select(n, digito, everything())
+features2
+```
+
+
+
+```{r}
+features_long <- features2 %>% 
+  pivot_longer(cols = -c(n, digito)) %>% 
+  mutate(Var1 = rep(1:28, times = 28 * 60000),
+         Var2 = rep(1:28, each = 28, times = 60000)) %>%
+  select(-name)
+features_long
+```
+
+```{r}
+p <- function(i){
+  features_long %>% 
+    filter(n %in% i) %>%
+    ggplot(aes(x = Var1, y = Var2)) +
+    geom_raster(aes(fill = factor(value))) +
+    scale_y_reverse() + scale_fill_grey() +
+    theme(legend.position = "none") + 
+    facet_wrap(~ n)
+}
+
+p(1:12)
+```
+
+```{r}
+tibble(Var1 = 3,
+                  Var2 = 6,
+                  lab = features_long %>% group_by(n) %>% distinct(digito) %>% pull(digito)) %>% 
+  slice(2:4)
+```
+
+
+
+
+```{r}
+p(13:24)
+```
+
+
+
+
+
+
+```{r}
+mnist_clustering <- kmeans(features, centers = 10, nstart = 10)
+```
+
+```{r}
+mnist_centers <- mnist_clustering$centers
+glimpse(mnist_centers)
+```
+
+
+# Iris dataset
+
