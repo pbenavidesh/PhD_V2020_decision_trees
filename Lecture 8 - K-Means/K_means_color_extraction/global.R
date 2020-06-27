@@ -6,6 +6,7 @@
 library(shiny)
 library(shinythemes)
 library(tidyverse)
+library(tidymodels)
 library(imager)
 library(grid)
 
