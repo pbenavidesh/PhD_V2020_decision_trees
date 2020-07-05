@@ -1,0 +1,26 @@
+---
+title: "Lecture 11"
+author: "Lazaro Alonso"
+date: "7/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Calcular Information gain para el siguiente conjunto de datos y en base ellos obtener el 'arbol de decisi'on. 
+
+```{r}
+# https://cran.r-project.org/web/packages/ggparty/vignettes/ggparty-graphic-partying.html
+# ahi pueden ver el resultado, pero necesitamos numeros.
+library(partykit)
+data("WeatherPlay", package = "partykit")
+summary(WeatherPlay)
+```
+Compute the decesion tree and plot it (usen R)
+
+```{r}
+
+```
+
