@@ -1,0 +1,102 @@
+---
+title: "Decision Trees"
+author: "Lazaro Alonso"
+date: "6/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+https://www.datacamp.com/community/tutorials/decision-trees-R 
+
+```{r}
+#install.packages("ggparty")
+#install.packages("ISLR")
+library(ISLR)
+library(ggparty)
+#data(package="ISLR")
+carseats <- Carseats
+head(carseats, 5)
+```
+
+```{r}
+library(tidymodels)
+```
+
+```{r}
+ti_tree =
+  decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("classification") %>% 
+  translate()
+ti_tree
+```
+
+Let's look at the data 
+
+```{r}
+names(carseats)
+```
+```{r}
+hist(carseats$Sales)
+#ggplot(carseats, aes(x = Sales)) + geom_histogram(bins = 20) 
+```
+
+```{r}
+High = ifelse(carseats$Sales<=8, "No", "Yes")
+carseats = data.frame(carseats, High)
+carseats
+```
+```{r}
+tree.carseats <- ti_tree %>% 
+  fit(as.factor(High)~.-Sales, data=carseats)
+```
+
+```{r}
+tree.carseats$fit
+```
+```{r}
+plot(tree.carseats$fit)
+```
+```{r}
+library(rpart)
+rpart::plotcp(tree.carseats$fit)
+```
+```{r}
+test2 <- rpart(as.factor(High)~.-Sales, data=carseats)
+test2
+```
+```{r}
+library("rpart.plot")
+rpart.plot(test2)
+```
+
+```{r}
+rpart.plot(tree.carseats$fit)
+```
+```{r}
+?rpart.plot
+```
+
+```{r}
+ data("WeatherPlay", package = "partykit")
+WeatherPlay
+```
+```{r}
+toplayor <- rpart(play ~ ., data = WeatherPlay, cp=1)
+toplayor
+```
+
+
+```{r}
+data(ptitanic)
+ptitanic %>% View()
+survived <- rpart(survived ~ ., data = ptitanic, cp = .02)
+rpart.plot(survived, type = 3, clip.right.labs = FALSE, branch = .3, under = TRUE)
+#rpart.rules(survived, cover = TRUE)
+```
+
