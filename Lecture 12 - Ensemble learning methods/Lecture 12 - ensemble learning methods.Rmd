@@ -99,7 +99,9 @@ biomass_te %>%
   geom_abline(slope = 1, intercept = 0)
 ```
 
-
+## Acitivity. Design your own project model (data and bagging model). 
+1. Regression (easy, like the one above)
+2. Classification (research, read the documentation). 
 
 
 

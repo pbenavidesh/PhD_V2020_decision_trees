@@ -2,14 +2,15 @@
 title: "Ensemble learning: Boosting"
 author: "Lazaro Alonso"
 date: "7/8/2020"
-output: html_document
+output: 
+  html_notebook
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Boosting
+## Boosting    
 is used to create a collection of predictors. In this technique, learners are learned sequentially with early learners fitting simple models to the data and then analysing data for errors.
 
 ```{r}
