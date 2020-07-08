@@ -1,0 +1,100 @@
+---
+title: "Ensemble learning: Boosting"
+author: "Lazaro Alonso"
+date: "7/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Boosting
+is used to create a collection of predictors. In this technique, learners are learned sequentially with early learners fitting simple models to the data and then analysing data for errors.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library (randomForest)
+library(JOUSBoost)
+```
+
+### Adaboost
+
+```{r}
+# https://cran.r-project.org/web/packages/JOUSBoost/JOUSBoost.pdf
+# Generate data from the circle model
+set.seed(111)
+dat = circle_data(n = 500)
+train_index = sample(1:500, 400)
+```
+
+```{r}
+train_index = sample(1:500, 400)
+
+ada = adaboost(dat$X[train_index,], dat$y[train_index], tree_depth = 2,
+               n_rounds = 200, verbose = TRUE)
+print(ada)
+yhat_ada = predict(ada, dat$X[-train_index,])
+
+# calculate misclassification rate
+mean(dat$y[-train_index] != yhat_ada)
+```
+
+### Gradient boosting
+
+Datos del ejemplo anterior. 
+```{r}
+heart<-read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data", col_names = F)
+```
+
+```{r}
+# Renaming var 
+colnames(heart)<- c("age", "sex", "rest_cp", "rest_bp",
+"chol", "fast_bloodsugar","rest_ecg","ex_maxHR","ex_cp",
+"ex_STdepression_dur", "ex_STpeak","coloured_vessels", "thalassemia","heart_disease")
+#elaborating cat var
+##simple ifelse conversion 
+heart<-heart %>% mutate(sex= ifelse(sex=="1", "male", "female"),fast_bloodsugar= ifelse(fast_bloodsugar=="1", ">120", "<120"), ex_cp=ifelse(ex_cp=="1", "yes", "no"),
+heart_disease=ifelse(heart_disease=="0", "no", "yes")) 
+
+heart<-heart %>% mutate(
+rest_cp=case_when(rest_cp== "1" ~ "typical",rest_cp=="2" ~ "atypical", rest_cp== "3" ~ "non-CP pain",rest_cp== "4" ~ "asymptomatic"), rest_ecg=case_when(rest_ecg=="0" ~ "normal",rest_ecg=="1" ~ "ST-T abnorm",rest_ecg=="2" ~ "LV hyperthrophy"), ex_STpeak=case_when(ex_STpeak=="1" ~ "up/norm", ex_STpeak== "2" ~ "flat",ex_STpeak== "3" ~ "down"), thalassemia=case_when(thalassemia=="3.0" ~ "norm", 
+  thalassemia== "6.0" ~ "fixed", thalassemia== "7.0" ~ "reversable")) 
+# convert missing value "?" into NA
+heart<-heart%>% mutate_if(is.character, funs(replace(., .=="?", NA)))
+# convert char into factors
+heart<-heart %>% mutate_if(is.character, as.factor)
+#train/test set 
+set.seed(4595)
+data_split <- initial_split(heart, prop=0.75, strata = "heart_disease")
+heart_train <- training(data_split)
+heart_test <- testing(data_split)
+# create recipe object
+heart_recipe<-recipe(heart_disease ~., data= heart_train) %>%
+  step_knnimpute(all_predictors()) %>% 
+step_dummy(all_nominal(), -heart_disease)# need dummy variables to be created for some `randomForestexplainer` functions though random forest model itself doesnt need explicit one hot encoding 
+# process the traing set/ prepare recipe(non-cv)
+heart_prep <-heart_recipe %>% prep(training = heart_train, retain = TRUE)
+```
+
+
+```{r}
+# boosted tree model 
+bt_model<-boost_tree(learn_rate=0.3, trees = 100, tree_depth= 6, min_n=1, sample_size=1, mode="classification") %>% set_engine("xgboost", verbose=2) %>%    fit(heart_disease ~ ., data = juice(heart_prep))
+```
+
+```{r}
+bt_model
+```
+
+### A MORE SIMPLE EXAMPLE
+
+```{r}
+# Another xgboost model
+fit <- boost_tree(mode = "classification", trees = 20) %>%
+  set_engine("xgboost") %>%
+  fit(Species ~ ., data = iris)
+fit
+```
+
