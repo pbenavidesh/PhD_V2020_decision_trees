@@ -151,6 +151,18 @@ server <- function(input, output, session) {
                                height=600, width=1800)
         print(my_test)
     })
+    
+    output$hypothesis <- renderUI({
+        my_test <- tags$iframe(src="https://www.tidymodels.org/learn/statistics/infer/", 
+                               height=600, width=1800)
+        print(my_test)
+    })
+    
+    output$xtabs <- renderUI({
+        my_test <- tags$iframe(src="https://www.tidymodels.org/learn/statistics/xtabs/", 
+                               height=600, width=1800)
+        print(my_test)
+    })
 }
 
 # Run the application 
