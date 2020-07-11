@@ -1,5 +1,6 @@
 ---
 title: "EDA"
+subtitle: "Lecture 4"
 author: "Pablo Benavides-Herrera"
 date: 2020-06-09
 output: 
@@ -9,6 +10,8 @@ output:
     theme: united
     highlight: tango
 ---
+
+# Introduction
 
 ```{r pkgs, message=FALSE}
 library(tidyverse)
@@ -22,8 +25,7 @@ house_prices
 glimpse(house_prices)
 
 house_prices <- house_prices %>% 
-  mutate(log10_price = log10(price),
-         log10_size = )
+  mutate(log10_price = log10(price))
 ```
 
 ```{r}
@@ -189,9 +191,19 @@ plot_houses(color = "floors") + geom_point()
 ```
 
 ```{r}
+plot_houses(x = "sqft_living", color = "bathrooms") + geom_point() +
+  scale_color_viridis_c()
+```
+
+Como era de esperarse, existe una relación directa entre el tamaño de la sala y el precio. Asimismo, Parece también existir una relación directa entre la cantidad de baños, el precio y el tamaño de la sala.
+
+>*Al parecer, a las personas con salas grandes les gusta tener más baños.*
+
+
+```{r}
 library(maps)
 library(ggmap)
-mutate_geocode()
-plot_houses()
+# mutate_geocode()
+# plot_houses()
 ```
 
