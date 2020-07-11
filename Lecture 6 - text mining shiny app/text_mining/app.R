@@ -27,6 +27,8 @@ freq_by_rank <- book_words %>%
     mutate(rank = row_number(), 
            `term frequency` = n/total)
 
+book_words <- book_words %>%
+  bind_tf_idf(word, book, n)
 
 # ui ----------------------------------------------------------------------
 
@@ -92,8 +94,7 @@ ui <- fluidPage( #themeSelector(),
                     
                 ),
                 tabPanel("Term frequency plots",
-                         fillPage(plotOutput("plot_tf", 
-                                             height = "100%"))
+                         plotOutput("plot_tf")
                     
                 ),
                 tabPanel("Zipf's law",
@@ -115,6 +116,20 @@ ui <- fluidPage( #themeSelector(),
                          
                 ),
                 tabPanel("tf_idf",
+                         wellPanel(
+                           sliderInput("top_n_tf_idf",
+                                       label = "Select the top n words",
+                                       min = 1, max = 50,
+                                       value = 15, step = 1),
+                           checkboxGroupInput("books_tf_idf",
+                                       label = "Select books to plot",
+                                       choices = book_words %>%  
+                                         distinct(book) %>% pull(),
+                                       selected = book_words %>%  
+                                         distinct(book) %>% pull(),
+                                       inline = TRUE)
+                         ),
+                         plotOutput("plot_tf_idf")
                     
                 )
             )
@@ -165,6 +180,21 @@ server <- function(input, output, session) {
                      color = c("blue", "red")) +
           scale_x_log10() +
           scale_y_log10()
+  })
+  
+  output$plot_tf_idf <- renderPlot({
+    book_words %>%
+      filter(book %in% input$books_tf_idf) %>% 
+      arrange(desc(tf_idf)) %>%
+      mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+      group_by(book) %>% 
+      top_n(input$top_n_tf_idf) %>% 
+      ungroup() %>%
+      ggplot(aes(word, tf_idf, fill = book)) +
+      geom_col(show.legend = FALSE) +
+      labs(x = NULL, y = "tf-idf") +
+      facet_wrap(~book, ncol = 2, scales = "free") +
+      coord_flip()
   })
   
 }

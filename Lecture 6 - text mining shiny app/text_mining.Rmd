@@ -1,6 +1,6 @@
 ---
-title: "Text mining"
-subtitle: "Jane Austen's Books"
+title: "Text mining Jane Austen's Books"
+subtitle: "Lecture 6"
 author: "Pablo Benavides-Herrera"
 date: 2020-06-18
 output: 
@@ -19,6 +19,7 @@ library(janeaustenr)
 library(tidytext)
 ```
 
+Se sigue el ejemplo mostrado [aquí](https://www.tidytextmining.com/tfidf). Otro ejemplo se puede mostrar [aquí](https://www.tidytextmining.com/tidytext.html#tidyausten).
 
 
 
