@@ -2,8 +2,9 @@
 
 library(shiny)
 
+
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(theme = shinytheme("spacelab"),
+shinyUI(fluidPage(theme = shinytheme("united"),
 
     # Application title
     titlePanel("Color extraction using K-Means"),
@@ -23,10 +24,16 @@ shinyUI(fluidPage(theme = shinytheme("spacelab"),
                         value = 5),
             radioButtons("img_src",
                          label = "Choose image source",
-                         choices = c("From pc",
+                         choices = c("Pre-loaded examples","From pc",
                                      "From web"),
                          inline = TRUE
                          ),
+            conditionalPanel("input.img_src=='Pre-loaded examples'",
+                             selectInput("examples",
+                                       label = "Choose the image",
+                                       choices = list.files(path = "./www"),
+                                       selected = "lotr.png")
+            ),
             conditionalPanel("input.img_src=='From web'",
                              textInput("url",
                                        label = "Specify the image's URL")
