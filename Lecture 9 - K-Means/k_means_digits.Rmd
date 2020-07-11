@@ -110,6 +110,10 @@ features_long <- features2 %>%
 features_long
 ```
 
+We create a function that selects a subset of the data and plots the result.
+
+For example, taking the first 12 rows.
+
 ```{r}
 p <- function(i){
   features_long %>% 
@@ -132,7 +136,7 @@ tibble(Var1 = 3,
 ```
 
 
-
+Getting now the second 12 rows:
 
 ```{r}
 p(13:24)
@@ -153,5 +157,5 @@ glimpse(mnist_centers)
 ```
 
 
-# Iris dataset
+
 
