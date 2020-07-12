@@ -1,7 +1,8 @@
 ---
-title: "Decision Trees v.01"
-author: "Lazaro Alonso"
-date: "6/30/2020"
+title: "Decision Trees"
+subtitle: "Lecture 10"
+author: "Pablo Benavides-Herrera"
+date: 2020-07-11
 output: 
   html_notebook:
     toc: TRUE
@@ -14,7 +15,17 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Decision Trees
+# Prerequisites
+
+```{r pkgs, message=FALSE, warning=FALSE}
+library(tidymodels)
+library(rpart)
+library(rpart.plot)
+```
+
+# Decision Trees
+
+## Definition
 
 https://en.wikipedia.org/wiki/Decision_tree_learning
 Decision tree learning is one of the predictive modelling approaches used in statistics, data mining and machine learning. It uses a decision tree (as a predictive model) to go from observations about an item (represented in the branches) to conclusions about the item's target value (represented in the leaves). 
@@ -25,7 +36,7 @@ Decision tree learning is one of the predictive modelling approaches used in sta
 
 In decision analysis, a decision tree can be used to visually and explicitly represent decisions and decision making. In data mining, a decision tree describes data (but the resulting classification tree can be an input for decision making). This page deals with decision trees in data mining.
 
-#### Decision tree types
+## Decision tree types
 
 - __Classification tree__ analysis is when the predicted outcome is the class (discrete) to which the data belongs.
 
@@ -33,16 +44,18 @@ In decision analysis, a decision tree can be used to visually and explicitly rep
 
 The term Classification And Regression Tree (__CART__) analysis is an umbrella term used to refer to both of the above procedures, first introduced by Breiman et al. in 1984
 
-More than one decision tree: (ensemble methods):
+## More than one decision tree (ensemble methods):
 
 - Boosted trees (AdaBoost)
 - Boostrap agregated (bugged)
   - Random forest classifier
 - ...
 
-#### Trees? 
+## Structure of a decision tree
+
 - Nodes: 
   - test for the value of a certain attribute
+  - the first node is called the **root node**
 - Edges
   - correspond to the outcome of a test
   - connect to the next node or leaf
@@ -50,32 +63,28 @@ More than one decision tree: (ensemble methods):
   - terminal nodes that predict the outcome
 
 ![](trees.png)
-  
 
-The critical part is how to split ? i.e. The best split. 
+
+The critical part is how to split the data? i.e. The best split. 
 
 - Gini impurity (Tsallis Entropy) _[Theory lecture, next session]_
 - Information gain (which tell us how well an attribute splits the data) _[Theory lecture, next session]_.
 
-### Some code 
-##### Getting a tree
+## Getting a tree {.tabset}
 
 Skipping the details about the splitting (for now), this is how we do it with the  _tidyverse_ suite. 
 
-```{r, message=FALSE, warning=FALSE}
-library(tidymodels)
-library(rpart)
-library(rpart.plot)
-```
-
-Let's play around with some portion of titanic's tragedy. 
+Let's play around with some portion of titanic's tragedy. Our goal will be to have leaves with two possible outcomes: "died" or "survived". Thus, we will have a **classification tree**.
 
 ```{r}
 data(ptitanic)
-ptitanic %>% View()
+# ptitanic %>% View()
 str(ptitanic)
 ```
 
+We will use the `rpart` package for the decision tree.
+
+### via `tidymodels`
 
 ```{r}
 model_tree <-
@@ -86,7 +95,9 @@ model_tree <-
 model_tree
 ```
 
-Or we could call directly to __rpart__. See example below. 
+The `cost_complexity` argument sets a threshold on how *deep* we want our tree to go. If we don't specify a cost complexity, the tree will go all the possible way, even if some of the divisions don't improve the fit.
+
+
 
 ```{r}
 survived_verse <- model_tree %>% 
@@ -94,23 +105,32 @@ survived_verse <- model_tree %>%
 survived_verse
 ```
 
+### `rpart`
+
 Or just using __rpart__. 
 
 ```{r}
 survived <- rpart(survived ~ ., data = ptitanic, cp = 0.02)
 survived
 ```
+
+
 ```{r}
 # all  the details
 summary(survived)
 ```
 
-Remember: always ask for help. 
+## {-}
+***
+
+**Remember**: always ask for help. 
 
 ```{r}
 ?rpart
-#?decision_tree
+?decision_tree
 ```
+
+## Plotting the resulting tree {.tabset}
 
 And now we can plot the trees (inverted trees actually). 
 
@@ -128,15 +148,18 @@ Each node shows
 - the predicted probability of survival,
 - the percentage of observations in the node.
 
-### - Option 2 (with more fine-tunning)
+### - Option 2. (with more fine-tunning)
 For more info go to http://www.milbo.org/rpart-plot/prp.pdf
 
 ```{r}
-rpart.plot(survived, type = 4, clip.right.labs = FALSE, branch = .3, under = TRUE)
+rpart.plot(survived, type = 4, 
+           clip.right.labs = FALSE, 
+           branch = .3, under = TRUE)
 ```
 Are they the same? Yes. 
 
-What about cp ?? how fast do we reach this treshold. 
+What about cp?? how fast do we reach this treshold?
+
 ```{r}
 rpart::plotcp(survived)
 ```
