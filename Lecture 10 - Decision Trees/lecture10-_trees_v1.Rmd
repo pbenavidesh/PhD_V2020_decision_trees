@@ -187,13 +187,14 @@ rpart.predict(survived, newdata=ptitanic[1:3,], rules=TRUE)
 rpart.rules(survived)
 ```
 
+# Carseats data
 
 - Independet work: work with the __Carseats__ dataset, install the __ISLR__ package. 
 
 ```{r}
 library(ISLR)
 #data(package="ISLR")
-carseats<-Carseats
+carseats <- Carseats
 str(carseats)
 ```
 Observe that __Sales__ is a quantitative variable (show this with a plot). You want to demonstrate it using trees with a binary response. To do so, you turn __Sales__ into a binary variable, which will be called High. If the sales is less than 8, it will be not high. Otherwise, it will be high. Then you can put that new variable High back into the dataframe.
@@ -202,6 +203,7 @@ Observe that __Sales__ is a quantitative variable (show this with a plot). You w
 ```{r}
 ?Carseats
 ```
+
 ```{r}
 hist(carseats$Sales)
 ```
@@ -209,10 +211,11 @@ hist(carseats$Sales)
 
 
 ```{r}
-High = ifelse(carseats$Sales<=8, "No", "Yes")
-carseats = data.frame(carseats, High)
+High <-  ifelse(carseats$Sales<=8, "No", "Yes")
+carseats <-  data.frame(carseats, High)
 summary(carseats)
 ```
+
 ```{r}
 model_tree2 <-
   decision_tree(cost_complexity = 0.04) %>%
@@ -228,20 +231,23 @@ tree.carseats <- model_tree2 %>%
   fit(as.factor(High)~.-Sales, data=carseats)
 tree.carseats
 ```
+
 ```{r}
 rpart::plotcp(tree.carseats$fit)
 ```
+
 ```{r}
 rpart.plot(tree.carseats$fit, type = 4,roundint=FALSE)
 ```
 
 
-
+# Iris dataset
 - Activity 2. Obtain the decission tree for the _iris_ data set. 
 
 ```{r}
 iris
 ```
+
 ```{r}
 model_tree3 <-
   decision_tree() %>%
@@ -254,6 +260,7 @@ tree.iris <- model_tree3 %>%
   fit(Species~., data=iris)
 tree.iris
 ```
+
 ```{r}
 rpart.plot(tree.iris$fit,roundint=FALSE)
 ```
