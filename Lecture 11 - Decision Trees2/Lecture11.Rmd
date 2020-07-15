@@ -268,5 +268,39 @@ ptitanic %>%
   map_df(impurity, y_var = "survived")
 ```
 
+## Ejemplo: `weatherPlay`
+
+```{r}
+library(partykit)
+data("WeatherPlay", package = "partykit")
+summary(WeatherPlay)
+```
+
+```{r}
+gain_comparison(WeatherPlay, y_var = "play",
+                features = c("windy","outlook"),impurity_fun = "entropy")
+```
+
+```{r}
+weather_tree <- decision_tree(cost_complexity = 0.001) %>%
+  set_engine("rpart") %>%
+  set_mode("classification") %>% 
+  translate()
+weather_tree
+```
+
+```{r}
+weather_tree_fit <- weather_tree %>% 
+  fit(play ~ ., data = WeatherPlay)
+weather_tree_fit
+```
+
+```{r}
+rpart::plotcp(weather_tree_fit$fit)
+```
+
+```{r}
+rpart.plot(weather_tree_fit$fit, type = 4,roundint=FALSE)
+```
 
 
