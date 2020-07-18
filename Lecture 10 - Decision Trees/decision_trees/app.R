@@ -108,7 +108,7 @@ server <- function(input, output) {
     model_tree <- reactive({
         decision_tree(cost_complexity = input$cp) %>% 
             set_engine("rpart") %>% 
-            set_mode(tree_types[[input$type]]) %>% 
+            set_mode(input$analysis) %>% 
             translate()
     })
     
