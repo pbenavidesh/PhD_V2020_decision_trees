@@ -6,6 +6,7 @@
 
 library(shiny)
 library(shinythemes)
+library(shinybusy)
 library(plotly)
 library(GGally)
 library(tidyverse)
@@ -26,6 +27,32 @@ wine <- bind_rows(red,white) %>%
     mutate(wine = as_factor(wine),
            quality = factor(quality, levels = 0:10, ordered = TRUE))
 
+# Splits
+red_splits <- initial_split(red %>% select(-wine))
+
+red_tr <- training(red_splits)
+
+red_te <- testing(red_splits)
+
+white_splits <- initial_split(white %>% select(-wine))
+
+white_tr <- training(white_splits)
+
+white_te <- testing(white_splits)
+
+wine_splits <- initial_split(wine)
+
+wine_tr <- training(wine_splits)
+
+wine_te <- testing(wine_splits)
+
+train <- list("red" = red_tr,
+              "white" = white_tr,
+              "both" = wine_tr)
+
+test <- list("red" = red_te,
+              "white" = white_te,
+              "both" = wine_te)
 
 # inputs ------------------------------------------------------------------
 
@@ -46,6 +73,10 @@ pair_plots <- list("red" = ggpairs(wine %>% filter(wine =="red")),
 
 ui <- fluidPage(
     theme = shinytheme("slate"),
+    
+    # add_busy_gif(src = "pups.gif",height = 100, width = 200),
+    add_busy_spinner(spin = "fading-circle"),
+    add_busy_bar(color = "red", height = "8px"),
     
     fluidRow(
         column(6,
@@ -246,8 +277,8 @@ ui <- fluidPage(
                                 label = "Number of trees to grow",
                                 min = 25,
                                 max = 3000,
-                                step = 5,
-                                value = 500),
+                                step = 25,
+                                value = 25),
                     numericInput("predictions",
                                  label = "Number of predictions to make",
                                  min = 1, step = 1, value = 5)
@@ -258,7 +289,12 @@ ui <- fluidPage(
                         tabPanel(
                             "Bagging", 
                             icon = icon("shopping-bag"),
-                            
+                            h3("Bagged MARS analysis"),
+                            verbatimTextOutput("mars_bag"),
+                            h3("Variable importance"),
+                            verbatimTextOutput("mars_bag_varimp"),
+                            h3("Predictions"),
+                            plotOutput("mars_pred_plot")
                         ),
                         # Random forest ####
                         tabPanel(
@@ -413,6 +449,45 @@ server <- function(input, output, session) {
     output$cp_plot <- renderPlot({
         plotcp(fit()$fit)
     })
+    # Ensemble - Bagging ####
+    
+    set.seed(7687)
+    
+    mars_bag <- reactive({
+      
+      withProgress(message = "Estimating...", value = 0,{
+        bagger(quality ~ ., data = train[[input$wine_type]],
+               base_model = "MARS", times = input$ntree,
+               control = ctrl)
+      })
+      
+    }) 
+    
+    output$mars_bag <- renderPrint({
+      mars_bag()
+    })
+    
+    output$mars_bag_varimp <- renderPrint({
+      var_imp(mars_bag())
+    })
+
+    mars_bag_pred <- reactive({
+      predict(mars_bag(), new_data = test[[input$wine_type]])
+    }) 
+    
+    
+    output$mars_pred_plot <- renderPlot({
+      test[[input$wine_type]] %>%
+        mutate(predictions = mars_bag_pred()$.pred) %>%
+        ggplot(aes(x = quality, y = predictions)) +
+        geom_point() +
+        geom_abline(slope = 1, intercept = 0)
+    })
+
+    
+    
+    
+    
     # Ensemble - Random forest ####
     rf <- reactive({
         randomForest(quality ~ ., data = df(),

@@ -88,6 +88,7 @@ library(tidyverse)
 library(tidymodels)
 library(rpart)
 library(rpart.plot)
+library(baguette)
 library(randomForest)
 library(JOUSBoost)
 
@@ -108,6 +109,25 @@ white <- read_delim("./Proyecto final/winequality-white.csv", delim = ";") %>%
 
 wine <- bind_rows(red,white) %>% 
   mutate(wine = as_factor(wine))
+
+red_splits <- initial_split(red %>% select(-wine))
+
+red_tr <- training(red_splits)
+
+red_te <- testing(red_splits)
+
+white_splits <- initial_split(white %>% select(-wine))
+
+white_tr <- training(white_splits)
+
+white_te <- testing(white_splits)
+
+wine_splits <- initial_split(wine)
+
+wine_tr <- training(wine_splits)
+
+wine_te <- testing(wine_splits)
+
 
 
 # Cleaning ----------------------------------------------------------------
@@ -217,4 +237,21 @@ rpart.plot(wine_tree$fit, type = 2,roundint=FALSE)
 
 # Ensemble methods --------------------------------------------------------
 
+ctrl <- control_bag(var_imp = TRUE)
+
+set.seed(7687)
+
+mars_bag <- bagger(quality ~ ., data = wine_tr, base_model = "MARS", times = 5,
+                   control = ctrl)
+mars_bag
+
+var_imp(mars_bag)
+
+mars_bag_pred <- predict(mars_bag, new_data = wine_te)
+
+wine_te %>% 
+  mutate(predictions = mars_bag_pred$.pred) %>% 
+  ggplot(aes(x = quality, y = predictions)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0)
 
