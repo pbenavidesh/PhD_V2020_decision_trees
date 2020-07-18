@@ -30,6 +30,7 @@ Housing Values in Suburbs of Boston
 glimpse(Boston)
 Boston %>% View()
 ```
+
 ```{r}
 #model_rf <- rand_forest() %>% 
 #  set_engine("randomForest") %>% 
@@ -42,12 +43,14 @@ Boston %>% View()
 ```{r}
 # ntree=25
 bag.boston = randomForest(medv~., data=Boston,
-mtry =13, ntree =25,importance=TRUE)
+mtry =13, ntree =500,importance=TRUE)
 bag.boston
 ```
+
 ```{r}
 predict(bag.boston, head(Boston, 5))
 ```
+
 ```{r}
 varImpPlot(bag.boston)
 ```
@@ -61,6 +64,7 @@ No se asusten por la limpia de los siguientes datos, es solo para mostrar el uso
 heart<-read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data", col_names = F)
 heart
 ```
+
 ```{r}
 # Renaming var 
 colnames(heart)<- c("age", "sex", "rest_cp", "rest_bp",
